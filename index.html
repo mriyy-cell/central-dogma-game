@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>セントラルドグマ・ファクトリー</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-dna: #38bdf8;
+      --accent-rna: #f43f5e;
+      --accent-protein: #10b981;
+      --text-color: #f8fafc;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+      color: #e2e8f0;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* リソース表示エリア */
+    .dashboard {
+      display: flex;
+      gap: 15px;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
+    }
+
+    .res-card {
+      flex: 1;
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid transparent;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .res-card.dna { border-color: var(--accent-dna); }
+    .res-card.rna { border-color: var(--accent-rna); }
+    .res-card.protein { border-color: var(--accent-protein); }
+
+    .res-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 10px 0 5px 0;
+    }
+
+    .res-rate {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    /* メインアクション（DNAクリック） */
+    .click-area {
+      margin: 15px 0 30px 0;
+      text-align: center;
+    }
+
+    .dna-btn {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.4);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .dna-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 5px 10px -3px rgba(56, 189, 248, 0.4);
+    }
+
+    /* 強化・装置購入エリア */
+    .shop-section {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 15px;
+    }
+
+    .item-card {
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .item-name {
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+
+    .item-desc {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin: 8px 0;
+      line-height: 1.3;
+    }
+
+    .buy-btn {
+      background-color: #334155;
+      color: #f8fafc;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .buy-btn:hover:not(:disabled) {
+      background-color: #475569;
+    }
+
+    .buy-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>セントラルドグマ・ファクトリー</h1>
+  <div class="subtitle">DNA → RNA → タンパク質 の流れで生体分子を大量生産せよ！</div>
+
+  <!-- リソース表示 -->
+  <div class="dashboard">
+    <div class="res-card dna">
+      <div>DNA（核内）</div>
+      <div class="res-value" id="dna-count">0</div>
+      <div class="res-rate">クリックで生成</div>
+    </div>
+    <div class="res-card rna">
+      <div>mRNA（転写物）</div>
+      <div class="res-value" id="rna-count">0</div>
+      <div class="res-rate"><span id="rna-rate">0</span> /秒</div>
+    </div>
+    <div class="res-card protein">
+      <div>タンパク質（翻訳物）</div>
+      <div class="res-value" id="protein-count">0</div>
+      <div class="res-rate"><span id="protein-rate">0</span> /秒</div>
+    </div>
+  </div>
+
+  <!-- タップアクション -->
+  <div class="click-area">
+    <button class="dna-btn" id="click-btn">DNAを転写（mRNA合成）</button>
+  </div>
+
+  <!-- 施設・酵素購入 -->
+  <div class="shop-section">
+    <div class="section-title">生体内システムの強化・自動化</div>
+    <div class="grid">
+      
+      <!-- RNAポリメラーゼ（mRNA自動生成） -->
+      <div class="item-card">
+        <div>
+          <div class="item-name">RNAポリメラーゼ</div>
+          <div class="item-desc">DNAからmRNAへの転写を自動化・促進する酵素。</div>
+        </div>
+        <button class="buy-btn" id="buy-pol">
+          レベルアップ (<span id="pol-lv">0</span>)<br>
+          コスト: <span id="pol-cost">10</span> DNA
+        </button>
+      </div>
+
+      <!-- リボソーム（タンパク質自動生成） -->
+      <div class="item-card">
+        <div>
+          <div class="item-name">リボソーム</div>
+          <div class="item-desc">mRNAの情報（コドン）を読み取り、アミノ酸を結合してタンパク質を翻訳・合成する。</div>
+        </div>
+        <button class="buy-btn" id="buy-ribo">
+          レベルアップ (<span id="ribo-lv">0</span>)<br>
+          コスト: <span id="ribo-cost">10</span> mRNA
+        </button>
+      </div>
+
+      <!-- シャペロン（品質・効率アップ） -->
+      <div class="item-card">
+        <div>
+          <div class="item-name">分子シャペロン</div>
+          <div class="item-desc">タンパク質の折りたたみ（フォールディング）を助け、翻訳効率を上昇させる。</div>
+        </div>
+        <button class="buy-btn" id="buy-chap">
+          レベルアップ (<span id="chap-lv">0</span>)<br>
+          コスト: <span id="chap-cost">20</span> タンパク質
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
