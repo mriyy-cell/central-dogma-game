@@ -27,11 +27,24 @@ const btnBuyPol = document.getElementById('buy-pol');
 const btnBuyRibo = document.getElementById('buy-ribo');
 const btnBuyChap = document.getElementById('buy-chap');
 
+// 新しい翻訳ボタンを取得
+const btnTranslate = document.getElementById('translate-btn');
+
 // --- 手動クリック（転写） ---
 btnClick.addEventListener('click', () => {
   state.mrna += 1; // クリックでmRNAを手動生成
   updateUI();
 });
+
+// --- 手動翻訳（mRNA 3つ -> アミノ酸 1つ） ---
+btnTranslate.addEventListener('click', () => {
+  if (state.mrna >= 3) {
+    state.mrna -= 3;
+    state.aminoAcid += 1;
+    updateUI();
+  }
+});
+
 
 // --- 強化1: RNAポリメラーゼ購入 (mRNA自動生成) ---
 btnBuyPol.addEventListener('click', () => {
@@ -115,6 +128,9 @@ function updateUI() {
   btnBuyPol.disabled = state.mrna < state.polCost;
   btnBuyRibo.disabled = state.aminoAcid < state.riboCost;
   btnBuyChap.disabled = state.protein < state.chapCost;
+
+  // updateUI() の末尾あたりに追加
+btnTranslate.disabled = state.mrna < 3;
 }
 
 // 初回UI描画
