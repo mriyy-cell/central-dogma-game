@@ -27,15 +27,13 @@ const btnBuyPol = document.getElementById('buy-pol');
 const btnBuyRibo = document.getElementById('buy-ribo');
 const btnBuyChap = document.getElementById('buy-chap');
 
-// 手動翻訳ボタン（mRNA -> アミノ酸）を取得
+// ボタン取得
 const btnTranslate = document.getElementById('translate-btn');
-
-// ★【追加箇所 2】HTMLで追加したボタン（id="fold-btn"）をJavaScriptで操作するために取得
 const btnFold = document.getElementById('fold-btn');
 
 // --- 手動クリック（転写） ---
 btnClick.addEventListener('click', () => {
-  state.mrna += 1; // クリックでmRNAを手動生成
+  state.mrna += 1;
   updateUI();
 });
 
@@ -48,8 +46,7 @@ btnTranslate.addEventListener('click', () => {
   }
 });
 
-// ★【追加箇所 3】手動折りたたみ（アミノ酸 1000個 -> タンパク質 1つ）処理
-// ボタンが押された際に、アミノ酸が1000個以上あるかを判定して消費・生成を行います
+// --- 手動折りたたみ（アミノ酸 1000個 -> タンパク質 1つ） ---
 btnFold.addEventListener('click', () => {
   if (state.aminoAcid >= 1000) {
     state.aminoAcid -= 1000;
@@ -58,7 +55,7 @@ btnFold.addEventListener('click', () => {
   }
 });
 
-// --- 強化1: RNAポリメラーゼ購入 (mRNA自動生成) ---
+// --- 強化1: RNAポリメラーゼ購入 ---
 btnBuyPol.addEventListener('click', () => {
   if (state.mrna >= state.polCost) {
     state.mrna -= state.polCost;
@@ -68,7 +65,7 @@ btnBuyPol.addEventListener('click', () => {
   }
 });
 
-// --- 強化2: リボソーム購入 (mRNA -> アミノ酸変換) ---
+// --- 強化2: リボソーム購入 ---
 btnBuyRibo.addEventListener('click', () => {
   if (state.aminoAcid >= state.riboCost) {
     state.aminoAcid -= state.riboCost;
@@ -78,7 +75,7 @@ btnBuyRibo.addEventListener('click', () => {
   }
 });
 
-// --- 強化3: 分子シャペロン購入 (アミノ酸 -> タンパク質変換) ---
+// --- 強化3: 分子シャペロン購入 ---
 btnBuyChap.addEventListener('click', () => {
   if (state.protein >= state.chapCost) {
     state.protein -= state.chapCost;
@@ -90,23 +87,21 @@ btnBuyChap.addEventListener('click', () => {
 
 // --- 毎秒の自動処理（ゲームループ） ---
 setInterval(() => {
-  // 1. RNAポリメラーゼによるmRNA自動生成
-  // レベルが1以上の場合：2^(レベル - 1) 個生成（Lv1: 1/秒, Lv2: 2/秒, Lv3: 4/秒, Lv4: 8/秒 ...）
+  // 1. RNAポリメラーゼによるmRNA自動生成（指数関数的増加: 2^(レベル-1)）
   const mrnaGen = state.rnaPolymerase > 0 ? Math.pow(2, state.rnaPolymerase - 1) : 0;
   state.mrna += mrnaGen;
 
-  // 2. リボソームによるmRNA -> アミノ酸の自動変換
+  // 2. リボソームによるmRNA -> アミノ酸自動変換（指数関数的増加）
   const aminoGen = state.ribosome > 0 ? Math.pow(2, state.ribosome - 1) : 0;
   if (state.mrna >= aminoGen) {
     state.mrna -= aminoGen;
     state.aminoAcid += aminoGen;
   } else {
-    // mRNAが足りない場合はある分だけ変換
     state.aminoAcid += state.mrna;
     state.mrna = 0;
   }
 
-  // 3. 分子シャペロンによるアミノ酸 -> タンパク質の自動変換
+  // 3. 分子シャペロンによるアミノ酸 -> タンパク質自動変換（指数関数的増加）
   const proteinGen = state.chaperone > 0 ? Math.pow(2, state.chaperone - 1) : 0;
   if (state.aminoAcid >= proteinGen) {
     state.aminoAcid -= proteinGen;
@@ -119,14 +114,13 @@ setInterval(() => {
   updateUI();
 }, 1000);
 
-
 // --- 画面表示（UI）更新機能 ---
 function updateUI() {
   elMrna.innerText = Math.floor(state.mrna);
   elAmino.innerText = Math.floor(state.aminoAcid);
   elProtein.innerText = Math.floor(state.protein);
 
-  // 秒間生成量の計算表示（指数関数的に増えた量を表示）
+  // 秒間生成量の計算表示
   const currentAminoRate = state.ribosome > 0 ? Math.pow(2, state.ribosome - 1) : 0;
   const currentProteinRate = state.chaperone > 0 ? Math.pow(2, state.chaperone - 1) : 0;
 
@@ -141,7 +135,7 @@ function updateUI() {
   document.getElementById('chap-lv').innerText = state.chaperone;
   document.getElementById('chap-cost').innerText = state.chapCost;
 
-  // 購入条件を満たしていないボタンの無効化（グレーアウト）
+  // ボタンの有効化/無効化（グレーアウト制御）
   btnBuyPol.disabled = state.mrna < state.polCost;
   btnBuyRibo.disabled = state.aminoAcid < state.riboCost;
   btnBuyChap.disabled = state.protein < state.chapCost;
