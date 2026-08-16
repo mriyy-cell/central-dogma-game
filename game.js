@@ -128,9 +128,7 @@ function updateUI() {
   btnBuyPol.disabled = state.mrna < state.polCost;
   btnBuyRibo.disabled = state.aminoAcid < state.riboCost;
   btnBuyChap.disabled = state.protein < state.chapCost;
-
-  // updateUI() の末尾あたりに追加
-btnTranslate.disabled = state.mrna < 3;
+  btnTranslate.disabled = state.mrna < 3;
 }
 
 // 初回UI描画
