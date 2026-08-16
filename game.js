@@ -90,12 +90,13 @@ btnBuyChap.addEventListener('click', () => {
 
 // --- 毎秒の自動処理（ゲームループ） ---
 setInterval(() => {
-  // 1. RNAポリメラーゼによるmRNA自動生成（クリック不要で増える）
-  const mrnaGen = state.rnaPolymerase * 1;
+  // 1. RNAポリメラーゼによるmRNA自動生成
+  // レベルが1以上の場合：2^(レベル - 1) 個生成（Lv1: 1/秒, Lv2: 2/秒, Lv3: 4/秒, Lv4: 8/秒 ...）
+  const mrnaGen = state.rnaPolymerase > 0 ? Math.pow(2, state.rnaPolymerase - 1) : 0;
   state.mrna += mrnaGen;
 
   // 2. リボソームによるmRNA -> アミノ酸の自動変換
-  const aminoGen = state.ribosome * 1;
+  const aminoGen = state.ribosome > 0 ? Math.pow(2, state.ribosome - 1) : 0;
   if (state.mrna >= aminoGen) {
     state.mrna -= aminoGen;
     state.aminoAcid += aminoGen;
@@ -106,7 +107,7 @@ setInterval(() => {
   }
 
   // 3. 分子シャペロンによるアミノ酸 -> タンパク質の自動変換
-  const proteinGen = state.chaperone * 1;
+  const proteinGen = state.chaperone > 0 ? Math.pow(2, state.chaperone - 1) : 0;
   if (state.aminoAcid >= proteinGen) {
     state.aminoAcid -= proteinGen;
     state.protein += proteinGen;
@@ -118,15 +119,19 @@ setInterval(() => {
   updateUI();
 }, 1000);
 
+
 // --- 画面表示（UI）更新機能 ---
 function updateUI() {
   elMrna.innerText = Math.floor(state.mrna);
   elAmino.innerText = Math.floor(state.aminoAcid);
   elProtein.innerText = Math.floor(state.protein);
 
-  // 秒間生成量の計算表示
-  elAminoRate.innerText = state.ribosome;
-  elProteinRate.innerText = state.chaperone;
+  // 秒間生成量の計算表示（指数関数的に増えた量を表示）
+  const currentAminoRate = state.ribosome > 0 ? Math.pow(2, state.ribosome - 1) : 0;
+  const currentProteinRate = state.chaperone > 0 ? Math.pow(2, state.chaperone - 1) : 0;
+
+  elAminoRate.innerText = currentAminoRate;
+  elProteinRate.innerText = currentProteinRate;
 
   // ボタンの表示更新（レベル・コスト）
   document.getElementById('pol-lv').innerText = state.rnaPolymerase;
@@ -141,8 +146,6 @@ function updateUI() {
   btnBuyRibo.disabled = state.aminoAcid < state.riboCost;
   btnBuyChap.disabled = state.protein < state.chapCost;
   btnTranslate.disabled = state.mrna < 3;
-
-  // ★【追加箇所 4】アミノ酸が1000個未満の場合にボタンをグレーアウト（無効化）する判定制御
   btnFold.disabled = state.aminoAcid < 1000;
 }
 
