@@ -1,7 +1,7 @@
 // --- ゲームの状態（データ） ---
 const state = {
-  dna: 0,
-  rna: 0,
+  mrna: 0,
+  aminoAcid: 0,
   protein: 0,
   
   // 施設レベル
@@ -16,10 +16,10 @@ const state = {
 };
 
 // --- DOM要素の取得 ---
-const elDna = document.getElementById('dna-count');
-const elRna = document.getElementById('rna-count');
+const elMrna = document.getElementById('dna-count');
+const elAmino = document.getElementById('rna-count');
 const elProtein = document.getElementById('protein-count');
-const elRnaRate = document.getElementById('rna-rate');
+const elAminoRate = document.getElementById('rna-rate');
 const elProteinRate = document.getElementById('protein-rate');
 
 const btnClick = document.getElementById('click-btn');
@@ -29,32 +29,31 @@ const btnBuyChap = document.getElementById('buy-chap');
 
 // --- 手動クリック（転写） ---
 btnClick.addEventListener('click', () => {
-  state.dna += 1;
-  state.rna += 1; // クリックでDNA消費＆mRNA生成
+  state.mrna += 1; // クリックでmRNAを手動生成
   updateUI();
 });
 
-// --- 強化1: RNAポリメラーゼ購入 ---
+// --- 強化1: RNAポリメラーゼ購入 (mRNA自動生成) ---
 btnBuyPol.addEventListener('click', () => {
-  if (state.dna >= state.polCost) {
-    state.dna -= state.polCost;
+  if (state.mrna >= state.polCost) {
+    state.mrna -= state.polCost;
     state.rnaPolymerase += 1;
     state.polCost = Math.floor(state.polCost * 1.5);
     updateUI();
   }
 });
 
-// --- 強化2: リボソーム購入 ---
+// --- 強化2: リボソーム購入 (mRNA -> アミノ酸変換) ---
 btnBuyRibo.addEventListener('click', () => {
-  if (state.rna >= state.riboCost) {
-    state.rna -= state.riboCost;
+  if (state.aminoAcid >= state.riboCost) {
+    state.aminoAcid -= state.riboCost;
     state.ribosome += 1;
     state.riboCost = Math.floor(state.riboCost * 1.5);
     updateUI();
   }
 });
 
-// --- 強化3: 分子シャペロン購入 ---
+// --- 強化3: 分子シャペロン購入 (アミノ酸 -> タンパク質変換) ---
 btnBuyChap.addEventListener('click', () => {
   if (state.protein >= state.chapCost) {
     state.protein -= state.chapCost;
@@ -64,23 +63,31 @@ btnBuyChap.addEventListener('click', () => {
   }
 });
 
-// --- 毎秒の自動処理（ループ） ---
+// --- 毎秒の自動処理（ゲームループ） ---
 setInterval(() => {
-  // RNAポリメラーゼによる自動mRNA生成
-  const rnaGen = state.rnaPolymerase * 1;
-  state.rna += rnaGen;
+  // 1. RNAポリメラーゼによるmRNA自動生成（クリック不要で増える）
+  const mrnaGen = state.rnaPolymerase * 1;
+  state.mrna += mrnaGen;
 
-  // リボソームによる自動タンパク質生成（シャペロンの倍率は1 + 0.5 * Lv）
-  const multiplier = 1 + (state.chaperone * 0.5);
-  const proteinGen = Math.floor(state.ribosome * 1 * multiplier);
-  
-  // タンパク質生成にはmRNAが必要（足りない場合はあるだけ消費）
-  if (state.rna >= proteinGen) {
-    state.rna -= proteinGen;
+  // 2. リボソームによるmRNA -> アミノ酸の自動変換
+  const aminoGen = state.ribosome * 1;
+  if (state.mrna >= aminoGen) {
+    state.mrna -= aminoGen;
+    state.aminoAcid += aminoGen;
+  } else {
+    // mRNAが足りない場合はある分だけ変換
+    state.aminoAcid += state.mrna;
+    state.mrna = 0;
+  }
+
+  // 3. 分子シャペロンによるアミノ酸 -> タンパク質の自動変換
+  const proteinGen = state.chaperone * 1;
+  if (state.aminoAcid >= proteinGen) {
+    state.aminoAcid -= proteinGen;
     state.protein += proteinGen;
   } else {
-    state.protein += state.rna;
-    state.rna = 0;
+    state.protein += state.aminoAcid;
+    state.aminoAcid = 0;
   }
 
   updateUI();
@@ -88,17 +95,13 @@ setInterval(() => {
 
 // --- 画面表示（UI）更新機能 ---
 function updateUI() {
-  elDna.innerText = Math.floor(state.dna);
-  elRna.innerText = Math.floor(state.rna);
+  elMrna.innerText = Math.floor(state.mrna);
+  elAmino.innerText = Math.floor(state.aminoAcid);
   elProtein.innerText = Math.floor(state.protein);
 
   // 秒間生成量の計算表示
-  const rnaRate = state.rnaPolymerase;
-  const multiplier = 1 + (state.chaperone * 0.5);
-  const proteinRate = Math.floor(state.ribosome * multiplier);
-  
-  elRnaRate.innerText = rnaRate;
-  elProteinRate.innerText = proteinRate;
+  elAminoRate.innerText = state.ribosome;
+  elProteinRate.innerText = state.chaperone;
 
   // ボタンの表示更新（レベル・コスト）
   document.getElementById('pol-lv').innerText = state.rnaPolymerase;
@@ -109,8 +112,8 @@ function updateUI() {
   document.getElementById('chap-cost').innerText = state.chapCost;
 
   // 購入条件を満たしていないボタンの無効化（グレーアウト）
-  btnBuyPol.disabled = state.dna < state.polCost;
-  btnBuyRibo.disabled = state.rna < state.riboCost;
+  btnBuyPol.disabled = state.mrna < state.polCost;
+  btnBuyRibo.disabled = state.aminoAcid < state.riboCost;
   btnBuyChap.disabled = state.protein < state.chapCost;
 }
 
