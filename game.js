@@ -27,8 +27,11 @@ const btnBuyPol = document.getElementById('buy-pol');
 const btnBuyRibo = document.getElementById('buy-ribo');
 const btnBuyChap = document.getElementById('buy-chap');
 
-// 新しい翻訳ボタンを取得
+// 手動翻訳ボタン（mRNA -> アミノ酸）を取得
 const btnTranslate = document.getElementById('translate-btn');
+
+// ★【追加箇所 2】HTMLで追加したボタン（id="fold-btn"）をJavaScriptで操作するために取得
+const btnFold = document.getElementById('fold-btn');
 
 // --- 手動クリック（転写） ---
 btnClick.addEventListener('click', () => {
@@ -45,6 +48,15 @@ btnTranslate.addEventListener('click', () => {
   }
 });
 
+// ★【追加箇所 3】手動折りたたみ（アミノ酸 1000個 -> タンパク質 1つ）処理
+// ボタンが押された際に、アミノ酸が1000個以上あるかを判定して消費・生成を行います
+btnFold.addEventListener('click', () => {
+  if (state.aminoAcid >= 1000) {
+    state.aminoAcid -= 1000;
+    state.protein += 1;
+    updateUI();
+  }
+});
 
 // --- 強化1: RNAポリメラーゼ購入 (mRNA自動生成) ---
 btnBuyPol.addEventListener('click', () => {
@@ -129,6 +141,9 @@ function updateUI() {
   btnBuyRibo.disabled = state.aminoAcid < state.riboCost;
   btnBuyChap.disabled = state.protein < state.chapCost;
   btnTranslate.disabled = state.mrna < 3;
+
+  // ★【追加箇所 4】アミノ酸が1000個未満の場合にボタンをグレーアウト（無効化）する判定制御
+  btnFold.disabled = state.aminoAcid < 1000;
 }
 
 // 初回UI描画
