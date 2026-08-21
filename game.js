@@ -22,7 +22,9 @@ const elProtein = document.getElementById('protein-count');
 const elAminoRate = document.getElementById('rna-rate');
 const elProteinRate = document.getElementById('protein-rate');
 
-const btnClick = document.getElementById('click-btn');
+// 中央DNAタップエリア
+const dnaTapArea = document.getElementById('dna-tap-area');
+
 const btnBuyPol = document.getElementById('buy-pol');
 const btnBuyRibo = document.getElementById('buy-ribo');
 const btnBuyChap = document.getElementById('buy-chap');
@@ -31,8 +33,8 @@ const btnBuyChap = document.getElementById('buy-chap');
 const btnTranslate = document.getElementById('translate-btn');
 const btnFold = document.getElementById('fold-btn');
 
-// --- 手動クリック（転写） ---
-btnClick.addEventListener('click', () => {
+// --- 手動タップ（DNA転写でmRNA合成） ---
+dnaTapArea.addEventListener('click', () => {
   state.mrna += 1;
   updateUI();
 });
@@ -91,7 +93,7 @@ setInterval(() => {
   const mrnaGen = state.rnaPolymerase > 0 ? Math.pow(2, state.rnaPolymerase - 1) : 0;
   state.mrna += mrnaGen;
 
-  // 2. リボソームによるmRNA -> アミノ酸自動変換（指数関数的増加）
+  // 2. リボソームによるmRNA -> アミノ酸自動変換
   const aminoGen = state.ribosome > 0 ? Math.pow(2, state.ribosome - 1) : 0;
   if (state.mrna >= aminoGen) {
     state.mrna -= aminoGen;
@@ -101,7 +103,7 @@ setInterval(() => {
     state.mrna = 0;
   }
 
-  // 3. 分子シャペロンによるアミノ酸 -> タンパク質自動変換（指数関数的増加）
+  // 3. 分子シャペロンによるアミノ酸 -> タンパク質自動変換
   const proteinGen = state.chaperone > 0 ? Math.pow(2, state.chaperone - 1) : 0;
   if (state.aminoAcid >= proteinGen) {
     state.aminoAcid -= proteinGen;
