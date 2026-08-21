@@ -9,16 +9,26 @@ const state = {
   ribosome: 0,
   chaperone: 0,
   
-  // コスト
-  polCost: 10,
-  riboCost: 10,
-  chapCost: 20
+  // 基本コスト（クッキークリッカー風の緩やかな倍率計算に変更）
+  polCost: 15,
+  riboCost: 20,
+  chapCost: 50
 };
+
+// クッキークリッカー等の標準的なコスト倍率 (1.15倍)
+const COST_MULTIPLIER = 1.15;
+
+// 各施設の単位あたりの自動生成・消費量
+const POL_PRODUCTION = 1;      // 1レベルあたり +1 mRNA/秒
+const RIBO_PRODUCTION = 5;     // 1レベルあたり +5 アミノ酸/秒 (要5 mRNA)
+const CHAP_PRODUCTION = 20;    // 1レベルあたり +20 タンパク質/秒 (要20 アミノ酸)
 
 // --- DOM要素の取得 ---
 const elMrna = document.getElementById('dna-count');
 const elAmino = document.getElementById('rna-count');
 const elProtein = document.getElementById('protein-count');
+
+const elMrnaRate = document.getElementById('mrna-rate');
 const elAminoRate = document.getElementById('rna-rate');
 const elProteinRate = document.getElementById('protein-rate');
 
@@ -48,10 +58,10 @@ btnTranslate.addEventListener('click', () => {
   }
 });
 
-// --- 手動折りたたみ（アミノ酸 1000個 -> タンパク質 1つ） ---
+// --- 手動折りたたみ（アミノ酸 10個 -> タンパク質 1つ） ---
 btnFold.addEventListener('click', () => {
-  if (state.aminoAcid >= 1000) {
-    state.aminoAcid -= 1000;
+  if (state.aminoAcid >= 10) {
+    state.aminoAcid -= 10;
     state.protein += 1;
     updateUI();
   }
@@ -62,7 +72,7 @@ btnBuyPol.addEventListener('click', () => {
   if (state.mrna >= state.polCost) {
     state.mrna -= state.polCost;
     state.rnaPolymerase += 1;
-    state.polCost = Math.floor(state.polCost * 1.5);
+    state.polCost = Math.floor(15 * Math.pow(COST_MULTIPLIER, state.rnaPolymerase));
     updateUI();
   }
 });
@@ -72,7 +82,7 @@ btnBuyRibo.addEventListener('click', () => {
   if (state.aminoAcid >= state.riboCost) {
     state.aminoAcid -= state.riboCost;
     state.ribosome += 1;
-    state.riboCost = Math.floor(state.riboCost * 1.5);
+    state.riboCost = Math.floor(20 * Math.pow(COST_MULTIPLIER, state.ribosome));
     updateUI();
   }
 });
@@ -82,36 +92,28 @@ btnBuyChap.addEventListener('click', () => {
   if (state.protein >= state.chapCost) {
     state.protein -= state.chapCost;
     state.chaperone += 1;
-    state.chapCost = Math.floor(state.chapCost * 1.5);
+    state.chapCost = Math.floor(50 * Math.pow(COST_MULTIPLIER, state.chaperone));
     updateUI();
   }
 });
 
 // --- 毎秒の自動処理（ゲームループ） ---
 setInterval(() => {
-  // 1. RNAポリメラーゼによるmRNA自動生成（指数関数的増加: 2^(レベル-1)）
-  const mrnaGen = state.rnaPolymerase > 0 ? Math.pow(2, state.rnaPolymerase - 1) : 0;
+  // 1. RNAポリメラーゼによるmRNA自動生成
+  const mrnaGen = state.rnaPolymerase * POL_PRODUCTION;
   state.mrna += mrnaGen;
 
   // 2. リボソームによるmRNA -> アミノ酸自動変換
-  const aminoGen = state.ribosome > 0 ? Math.pow(2, state.ribosome - 1) : 0;
-  if (state.mrna >= aminoGen) {
-    state.mrna -= aminoGen;
-    state.aminoAcid += aminoGen;
-  } else {
-    state.aminoAcid += state.mrna;
-    state.mrna = 0;
-  }
+  const aminoTarget = state.ribosome * RIBO_PRODUCTION;
+  const aminoActual = Math.min(state.mrna, aminoTarget);
+  state.mrna -= aminoActual;
+  state.aminoAcid += aminoActual;
 
   // 3. 分子シャペロンによるアミノ酸 -> タンパク質自動変換
-  const proteinGen = state.chaperone > 0 ? Math.pow(2, state.chaperone - 1) : 0;
-  if (state.aminoAcid >= proteinGen) {
-    state.aminoAcid -= proteinGen;
-    state.protein += proteinGen;
-  } else {
-    state.protein += state.aminoAcid;
-    state.aminoAcid = 0;
-  }
+  const proteinTarget = state.chaperone * CHAP_PRODUCTION;
+  const proteinActual = Math.min(state.aminoAcid, proteinTarget);
+  state.aminoAcid -= proteinActual;
+  state.protein += proteinActual;
 
   updateUI();
 }, 1000);
@@ -123,9 +125,11 @@ function updateUI() {
   elProtein.innerText = Math.floor(state.protein);
 
   // 秒間生成量の計算表示
-  const currentAminoRate = state.ribosome > 0 ? Math.pow(2, state.ribosome - 1) : 0;
-  const currentProteinRate = state.chaperone > 0 ? Math.pow(2, state.chaperone - 1) : 0;
+  const currentMrnaRate = state.rnaPolymerase * POL_PRODUCTION;
+  const currentAminoRate = state.ribosome * RIBO_PRODUCTION;
+  const currentProteinRate = state.chaperone * CHAP_PRODUCTION;
 
+  elMrnaRate.innerText = currentMrnaRate;
   elAminoRate.innerText = currentAminoRate;
   elProteinRate.innerText = currentProteinRate;
 
@@ -142,7 +146,7 @@ function updateUI() {
   btnBuyRibo.disabled = state.aminoAcid < state.riboCost;
   btnBuyChap.disabled = state.protein < state.chapCost;
   btnTranslate.disabled = state.mrna < 3;
-  btnFold.disabled = state.aminoAcid < 1000;
+  btnFold.disabled = state.aminoAcid < 10;
 }
 
 // 初回UI描画
