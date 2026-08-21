@@ -7,7 +7,7 @@
   <style>
     :root {
       --bg-color: #0d1326;
-      --card-bg: #12192e;
+      --card-bg: rgba(18, 25, 46, 0.85);
       --accent-blue: #38bdf8;
       --accent-pink: #f43f5e;
       --accent-green: #10b981;
@@ -18,9 +18,11 @@
       margin: 0;
       padding: 20px;
       background-color: var(--bg-color);
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.08) 0%, transparent 20%);
+      /* photos/bg_central_dogma.png を指定（画像がない場合はダークグラデーションが適用されます） */
+      background-image: linear-gradient(rgba(13, 19, 38, 0.75), rgba(13, 19, 38, 0.85)), url('photos/bg_central_dogma.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
       color: var(--text-color);
       font-family: 'Helvetica Neue', Arial, sans-serif;
       display: flex;
@@ -32,14 +34,14 @@
 
     h1 {
       margin: 0 0 5px 0;
-      font-size: 2rem;
+      font-size: 2.2rem;
       color: #38bdf8;
       text-align: center;
-      text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
     }
 
     .subtitle {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: #94a3b8;
       margin-bottom: 25px;
       text-align: center;
@@ -51,60 +53,52 @@
       gap: 15px;
       width: 100%;
       max-width: 850px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .res-card {
       flex: 1;
       background: var(--card-bg);
+      backdrop-filter: blur(8px);
       padding: 15px;
-      border-radius: 8px;
+      border-radius: 12px;
       text-align: center;
-      border: 3px solid transparent;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      border: 2px solid transparent;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
       position: relative;
     }
 
-    .res-card.blue {
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.1);
-    }
-
-    .res-card.pink {
-      border-color: var(--accent-pink);
-      box-shadow: 0 0 10px rgba(244, 63, 94, 0.3), inset 0 0 10px rgba(244, 63, 94, 0.1);
-    }
-
-    .res-card.green {
-      border-color: var(--accent-green);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.1);
-    }
+    .res-card.blue { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+    .res-card.pink { border-color: var(--accent-pink); box-shadow: 0 0 15px rgba(244, 63, 94, 0.2); }
+    .res-card.green { border-color: var(--accent-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
 
     .res-title {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: bold;
       margin-bottom: 10px;
     }
 
     .icon-box {
-      width: 60px;
-      height: 60px;
+      width: 55px;
+      height: 55px;
       margin: 0 auto 10px auto;
-      border: 2px solid currentColor;
-      border-radius: 6px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .res-card.blue .icon-box { color: var(--accent-blue); }
-    .res-card.pink .icon-box { color: var(--accent-pink); }
-    .res-card.green .icon-box { color: var(--accent-green); }
+    .icon-box img {
+      width: 85%;
+      height: 85%;
+      object-fit: contain;
+    }
 
     .res-value {
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: bold;
       margin-bottom: 5px;
     }
@@ -114,34 +108,105 @@
       color: #94a3b8;
     }
 
-    /* メインアクションボタン */
-    .click-area {
-      margin: 10px 0 25px 0;
-      width: 100%;
-      max-width: 450px;
+    /* 中央メインアクション（DNAアイコンタップエリア） */
+    .main-click-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 10px 0 30px 0;
     }
 
-    .dna-btn {
-      width: 100%;
-      background: transparent;
-      color: #38bdf8;
-      border: 3px solid var(--accent-blue);
-      padding: 15px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border-radius: 12px;
+    .dna-click-container {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(0,0,0,0) 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-      transition: all 0.1s;
+      transition: transform 0.1s ease;
+      user-select: none;
+    }
+
+    .dna-click-container:hover {
+      transform: scale(1.05);
+    }
+
+    .dna-click-container:active {
+      transform: scale(0.92);
+    }
+
+    .dna-click-img {
+      width: 130px;
+      height: 130px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));
+      pointer-events: none;
+    }
+
+    .click-label {
+      margin-top: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--accent-blue);
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+    }
+
+    /* アクションボタン（翻訳・折りたたみ） */
+    .sub-action-area {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .action-btn {
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(4px);
+      border: 2px solid;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
     }
 
-    .dna-btn:active {
-      transform: scale(0.98);
-      background: rgba(56, 189, 248, 0.15);
+    .action-btn img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .action-btn.pink {
+      border-color: var(--accent-pink);
+      color: var(--accent-pink);
+    }
+
+    .action-btn.green {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .action-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.2);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #475569 !important;
+      color: #94a3b8 !important;
     }
 
     /* 強化・装置購入エリア */
@@ -165,8 +230,9 @@
 
     .item-card {
       background: var(--card-bg);
-      padding: 12px;
-      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      padding: 14px;
+      border-radius: 10px;
       display: flex;
       flex-direction: column;
       border: 2px solid #334155;
@@ -178,26 +244,28 @@
 
     .item-header {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
     .item-icon {
-      width: 45px;
-      height: 45px;
-      min-width: 45px;
-      border: 2px solid currentColor;
-      border-radius: 6px;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.4);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .item-card.blue .item-icon { color: var(--accent-blue); }
-    .item-card.pink .item-icon { color: var(--accent-pink); }
-    .item-card.green .item-icon { color: var(--accent-green); }
+    .item-icon img {
+      width: 85%;
+      height: 85%;
+      object-fit: contain;
+    }
 
     .item-info {
       flex: 1;
@@ -212,7 +280,7 @@
       font-size: 0.72rem;
       color: #94a3b8;
       margin-top: 4px;
-      line-height: 1.2;
+      line-height: 1.3;
     }
 
     .item-footer {
@@ -225,13 +293,13 @@
     .item-level {
       font-size: 1.2rem;
       font-weight: bold;
-      min-width: 20px;
+      min-width: 25px;
       text-align: center;
     }
 
     .buy-btn {
       flex: 1;
-      background-color: rgba(16, 185, 129, 0.1);
+      background-color: rgba(16, 185, 129, 0.15);
       color: var(--accent-green);
       border: 2px solid var(--accent-green);
       padding: 8px;
@@ -244,7 +312,7 @@
     }
 
     .buy-btn:hover:not(:disabled) {
-      background-color: rgba(16, 185, 129, 0.25);
+      background-color: rgba(16, 185, 129, 0.3);
     }
 
     .buy-btn:disabled {
@@ -253,6 +321,15 @@
       border-color: #475569;
       color: #94a3b8;
       background: transparent;
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .dashboard {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -265,34 +342,39 @@
   <div class="dashboard">
     <div class="res-card blue">
       <div class="res-title">mRNA（核内）</div>
-      <div class="icon-box">🧬</div>
+      <div class="icon-box"><img src="photos/icon_mrna.png" alt="mRNA"></div>
       <div class="res-value" id="dna-count">0</div>
-      <div class="res-rate">クリックで生成</div>
+      <div class="res-rate">タップで生成</div>
     </div>
     <div class="res-card pink">
       <div class="res-title">アミノ酸</div>
-      <div class="icon-box">🔮</div>
+      <div class="icon-box"><img src="photos/icon_amino_acid.png" alt="アミノ酸"></div>
       <div class="res-value" id="rna-count">0</div>
       <div class="res-rate"><span id="rna-rate">0</span> /秒</div>
     </div>
     <div class="res-card green">
       <div class="res-title">タンパク質（翻訳物）</div>
-      <div class="icon-box">🧪</div>
+      <div class="icon-box"><img src="photos/icon_protein.png" alt="タンパク質"></div>
       <div class="res-value" id="protein-count">0</div>
       <div class="res-rate"><span id="protein-rate">0</span> /秒</div>
     </div>
   </div>
 
-  <!-- タップアクション -->
-  <div class="click-area">
-    <button class="dna-btn" id="click-btn">
-      <span>🧬</span> DNAを転写 (mRNA合成)
+  <!-- 中央メインタップエリア (DNAタップでmRNA生成) -->
+  <div class="main-click-section">
+    <div class="dna-click-container" id="dna-tap-area">
+      <img src="photos/icon_dna.png" alt="DNA" class="dna-click-img">
+    </div>
+    <div class="click-label">タップして転写 (mRNA合成)</div>
+  </div>
+
+  <!-- サブアクションエリア -->
+  <div class="sub-action-area">
+    <button class="action-btn pink" id="translate-btn">
+      <img src="photos/icon_amino_acid.png" alt=""> mRNAから翻訳 (アミノ酸合成 +1 / コスト: 3 mRNA)
     </button>
-    <button class="dna-btn amino-btn" id="translate-btn" style="margin-top: 10px; border-color: var(--accent-pink); color: var(--accent-pink);">
-      <span>🔮</span> mRNAから翻訳 (アミノ酸合成 +1 / コスト: 3 mRNA)
-    </button>
-    <button class="dna-btn protein-btn" id="fold-btn" style="margin-top: 10px; border-color: var(--accent-green); color: var(--accent-green);">
-      <span>🧪</span> アミノ酸から折りたたみ (タンパク質合成 +1 / コスト: 1000 アミノ酸)
+    <button class="action-btn green" id="fold-btn">
+      <img src="photos/icon_protein.png" alt=""> アミノ酸から折りたたみ (タンパク質合成 +1 / コスト: 1000 アミノ酸)
     </button>
   </div>
 
@@ -304,7 +386,7 @@
       <!-- RNAポリメラーゼ -->
       <div class="item-card blue">
         <div class="item-header">
-          <div class="item-icon">🦠</div>
+          <div class="item-icon"><img src="photos/icon_rna_pol.png" alt="RNAポリメラーゼ"></div>
           <div class="item-info">
             <div class="item-name">RNAポリメラーゼ</div>
             <div class="item-desc">DNAからmRNAへの転写を自動化・促進する酵素。</div>
@@ -321,7 +403,7 @@
       <!-- リボソーム -->
       <div class="item-card pink">
         <div class="item-header">
-          <div class="item-icon">💊</div>
+          <div class="item-icon"><img src="photos/icon_ribosome.png" alt="リボソーム"></div>
           <div class="item-info">
             <div class="item-name">リボソーム</div>
             <div class="item-desc">mRNAの情報を読み取り、アミノ酸を結合してタンパク質を翻訳・合成する。</div>
@@ -338,7 +420,7 @@
       <!-- 分子シャペロン -->
       <div class="item-card green">
         <div class="item-header">
-          <div class="item-icon">🔄</div>
+          <div class="item-icon"><img src="photos/icon_chaperone.png" alt="分子シャペロン"></div>
           <div class="item-info">
             <div class="item-name">分子シャペロン</div>
             <div class="item-desc">タンパク質の折りたたみ(フォールディング)を助け、翻訳効率を上昇させる。</div>
