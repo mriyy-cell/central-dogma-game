@@ -18,7 +18,6 @@
       margin: 0;
       padding: 20px;
       background-color: var(--bg-color);
-      /* photos/bg_central_dogma.png を指定（画像がない場合はダークグラデーションが適用されます） */
       background-image: linear-gradient(rgba(13, 19, 38, 0.75), rgba(13, 19, 38, 0.85)), url('photos/bg_central_dogma.png');
       background-size: cover;
       background-position: center;
@@ -78,11 +77,12 @@
       margin-bottom: 10px;
     }
 
+    /* 画像面積を4倍にするため、サイズを55px -> 110px に拡大 */
     .icon-box {
-      width: 55px;
-      height: 55px;
+      width: 110px;
+      height: 110px;
       margin: 0 auto 10px auto;
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -92,8 +92,8 @@
     }
 
     .icon-box img {
-      width: 85%;
-      height: 85%;
+      width: 90%;
+      height: 90%;
       object-fit: contain;
     }
 
@@ -116,10 +116,11 @@
       margin: 10px 0 30px 0;
     }
 
+    /* 画像面積を4倍にするため、サイズを160px -> 320px に拡大 */
     .dna-click-container {
       position: relative;
-      width: 160px;
-      height: 160px;
+      width: 320px;
+      height: 320px;
       border-radius: 50%;
       background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(0,0,0,0) 70%);
       display: flex;
@@ -138,17 +139,18 @@
       transform: scale(0.92);
     }
 
+    /* 画像面積を4倍にするため、サイズを130px -> 260px に拡大 */
     .dna-click-img {
-      width: 130px;
-      height: 130px;
+      width: 260px;
+      height: 260px;
       object-fit: contain;
-      filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));
+      filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.6));
       pointer-events: none;
     }
 
     .click-label {
       margin-top: 12px;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: bold;
       color: var(--accent-blue);
       text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
@@ -169,7 +171,7 @@
       background: var(--card-bg);
       backdrop-filter: blur(4px);
       border: 2px solid;
-      padding: 10px 16px;
+      padding: 12px 16px;
       font-size: 0.95rem;
       font-weight: bold;
       border-radius: 10px;
@@ -181,9 +183,10 @@
       gap: 10px;
     }
 
+    /* 画像面積を4倍にするため、サイズを24px -> 48px に拡大 */
     .action-btn img {
-      width: 24px;
-      height: 24px;
+      width: 48px;
+      height: 48px;
       object-fit: contain;
     }
 
@@ -248,11 +251,12 @@
       margin-bottom: 12px;
     }
 
+    /* 画像面積を4倍にするため、サイズを48px -> 96px に拡大 */
     .item-icon {
-      width: 48px;
-      height: 48px;
-      min-width: 48px;
-      border-radius: 8px;
+      width: 96px;
+      height: 96px;
+      min-width: 96px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -262,8 +266,8 @@
     }
 
     .item-icon img {
-      width: 85%;
-      height: 85%;
+      width: 88%;
+      height: 88%;
       object-fit: contain;
     }
 
@@ -330,6 +334,14 @@
       .dashboard {
         flex-direction: column;
       }
+      .dna-click-container {
+        width: 220px;
+        height: 220px;
+      }
+      .dna-click-img {
+        width: 180px;
+        height: 180px;
+      }
     }
   </style>
 </head>
@@ -344,23 +356,23 @@
       <div class="res-title">mRNA（核内）</div>
       <div class="icon-box"><img src="photos/icon_mrna.png" alt="mRNA"></div>
       <div class="res-value" id="dna-count">0</div>
-      <div class="res-rate">タップで生成</div>
+      <div class="res-rate">+<span id="mrna-rate">0</span> /秒</div>
     </div>
     <div class="res-card pink">
       <div class="res-title">アミノ酸</div>
       <div class="icon-box"><img src="photos/icon_amino_acid.png" alt="アミノ酸"></div>
       <div class="res-value" id="rna-count">0</div>
-      <div class="res-rate"><span id="rna-rate">0</span> /秒</div>
+      <div class="res-rate">+<span id="rna-rate">0</span> /秒</div>
     </div>
     <div class="res-card green">
       <div class="res-title">タンパク質（翻訳物）</div>
       <div class="icon-box"><img src="photos/icon_protein.png" alt="タンパク質"></div>
       <div class="res-value" id="protein-count">0</div>
-      <div class="res-rate"><span id="protein-rate">0</span> /秒</div>
+      <div class="res-rate">+<span id="protein-rate">0</span> /秒</div>
     </div>
   </div>
 
-  <!-- 中央メインタップエリア (DNAタップでmRNA生成) -->
+  <!-- 中央メインタップエリア -->
   <div class="main-click-section">
     <div class="dna-click-container" id="dna-tap-area">
       <img src="photos/icon_dna.png" alt="DNA" class="dna-click-img">
@@ -371,10 +383,10 @@
   <!-- サブアクションエリア -->
   <div class="sub-action-area">
     <button class="action-btn pink" id="translate-btn">
-      <img src="photos/icon_amino_acid.png" alt=""> mRNAから翻訳 (アミノ酸合成 +1 / コスト: 3 mRNA)
+      <img src="photos/icon_amino_acid.png" alt=""> mRNAから手動翻訳 (アミノ酸 +1 / コスト: 3 mRNA)
     </button>
     <button class="action-btn green" id="fold-btn">
-      <img src="photos/icon_protein.png" alt=""> アミノ酸から折りたたみ (タンパク質合成 +1 / コスト: 1000 アミノ酸)
+      <img src="photos/icon_protein.png" alt=""> アミノ酸から手動折りたたみ (タンパク質 +1 / コスト: 10 アミノ酸)
     </button>
   </div>
 
@@ -389,13 +401,13 @@
           <div class="item-icon"><img src="photos/icon_rna_pol.png" alt="RNAポリメラーゼ"></div>
           <div class="item-info">
             <div class="item-name">RNAポリメラーゼ</div>
-            <div class="item-desc">DNAからmRNAへの転写を自動化・促進する酵素。</div>
+            <div class="item-desc">DNAからmRNAへの転写を自動化（+1 mRNA/秒）</div>
           </div>
         </div>
         <div class="item-footer">
           <div class="item-level" id="pol-lv">0</div>
           <button class="buy-btn" id="buy-pol">
-            レベルアップ<br>コスト: <span id="pol-cost">10</span> mRNA
+            購入<br>コスト: <span id="pol-cost">15</span> mRNA
           </button>
         </div>
       </div>
@@ -406,13 +418,13 @@
           <div class="item-icon"><img src="photos/icon_ribosome.png" alt="リボソーム"></div>
           <div class="item-info">
             <div class="item-name">リボソーム</div>
-            <div class="item-desc">mRNAの情報を読み取り、アミノ酸を結合してタンパク質を翻訳・合成する。</div>
+            <div class="item-desc">mRNAを読み取りアミノ酸に自動変換（+5 アミノ酸/秒）</div>
           </div>
         </div>
         <div class="item-footer">
           <div class="item-level" id="ribo-lv">0</div>
           <button class="buy-btn" id="buy-ribo">
-            レベルアップ<br>コスト: <span id="ribo-cost">10</span> アミノ酸
+            購入<br>コスト: <span id="ribo-cost">20</span> アミノ酸
           </button>
         </div>
       </div>
@@ -423,13 +435,13 @@
           <div class="item-icon"><img src="photos/icon_chaperone.png" alt="分子シャペロン"></div>
           <div class="item-info">
             <div class="item-name">分子シャペロン</div>
-            <div class="item-desc">タンパク質の折りたたみ(フォールディング)を助け、翻訳効率を上昇させる。</div>
+            <div class="item-desc">アミノ酸をタンパク質に正しく折りたたむ（+20 タンパク質/秒）</div>
           </div>
         </div>
         <div class="item-footer">
           <div class="item-level" id="chap-lv">0</div>
           <button class="buy-btn" id="buy-chap">
-            レベルアップ<br>コスト: <span id="chap-cost">20</span> タンパク質
+            購入<br>コスト: <span id="chap-cost">50</span> タンパク質
           </button>
         </div>
       </div>
